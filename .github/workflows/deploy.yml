@@ -38,10 +38,16 @@ jobs:
           key: npm-deps-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
         run: npm ci
-      # - name: Run server
-      #   run: concurrently "npm start" "npm test"
+      - name: Run server
+        run: |
+          nohup npm start &
       - name: Run tests
-        run: npm test
+        run: |
+          sleep 5
+          npm test
+      - name: Stop server
+        run: |
+          kill $(lsof -t -i:8800)
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         env:
