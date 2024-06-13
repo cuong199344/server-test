@@ -10,6 +10,7 @@ env:
   MONGODB_CLUSTER_ADDRESS: cluster0.ay6rlxm.mongodb.net
   MONGODB_URL: ${{secrets.MONGODB_URL}}
   JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY}}
+
 jobs:
   test:
     env: 
@@ -19,6 +20,8 @@ jobs:
       PORT: 8800
     environment: testing
     runs-on: ubuntu-latest
+    container: 
+      image: node:16
     steps:
       - name: Get Code
         uses: actions/checkout@v3
@@ -30,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Run server
-        run: npm start
+        run: npm start & npx wait-on http://localhost:$PORT
       - name: Run tests
         run: npm test
       - name: SonarCloud Scan
