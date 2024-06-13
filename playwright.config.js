@@ -25,7 +25,7 @@ const config = {
   reporter: "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    baseURL: `http://127.0.0.1:8800`,
+    baseURL: `http://localhost:8800`,
   },
 };
 
