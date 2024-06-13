@@ -8,9 +8,12 @@ env:
   # Biến này sẽ có thể được sử dụng bởi tất cả các job
   # MONGODB_DB_NAME: gha-demo
   MONGODB_CLUSTER_ADDRESS: cluster0.ay6rlxm.mongodb.net
+  MONGODB_URL: ${{secrets.MONGODB_URL}}
+  JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY}}
 jobs:
   test:
     env: 
+      
       MONGODB_USERNAME: ${{secrets.MONGODB_USERNAME}}
       MONGODB_PASSWORD: ${{secrets.MONGODB_PASSWORD}}
       PORT: 8800
