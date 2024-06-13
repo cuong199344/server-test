@@ -6,11 +6,11 @@ on:
       - dev
 env:
   # Biến này sẽ có thể được sử dụng bởi tất cả các job
-  MONGODB_DB_NAME: gha-demo
+  # MONGODB_DB_NAME: gha-demo
+  MONGODB_CLUSTER_ADDRESS: cluster0.ay6rlxm.mongodb.net
 jobs:
   test:
     env: 
-      MONGODB_CLUSTER_ADDRESS: cluster0.ay6rlxm.mongodb.net
       MONGODB_USERNAME: ${{secrets.MONGODB_USERNAME}}
       MONGODB_PASSWORD: ${{secrets.MONGODB_PASSWORD}}
       PORT: 8800
@@ -27,9 +27,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Run server
-        run: npm start & npx wait-on http://localhost:$PORT
+        run: npm start & npx wait-on http://127.0.0.1:$PORT
       - name: Run tests
         run: npm test
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+              -Dsonar.organization=cuong199344
+              -Dsonar.projectKey=cuong199344
+              -Dsonar.python.coverage.reportPaths=coverage.xml
       - name: Output information
         run: |
           echo "MONGODB_USERNAME: ${{env.MONGODB_USERNAME}}"
