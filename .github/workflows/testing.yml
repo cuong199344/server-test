@@ -14,7 +14,7 @@ env:
 jobs:
   test:
     env: 
-      MONGODB_URL: mongodb://root:example@127.0.0.1:27017/?retryWrites=true&w=majority`
+      MONGODB_URL: mongodb://root:example@mongo:27017/jobfinder_DB
       MONGODB_CONNECTION_PROTOCOL: mongodb
       MONGODB_CLUSTER_ADDRESS: 127.0.0.1:27017
       MONGODB_USERNAME: root
