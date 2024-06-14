@@ -1,0 +1,105 @@
+name: Deployment
+on:
+  push:
+    branches:
+      - master
+      - dev
+env:
+  # Biến này sẽ có thể được sử dụng bởi tất cả các job
+  # MONGODB_DB_NAME: gha-demo
+  MONGODB_CLUSTER_ADDRESS: cluster0.ay6rlxm.mongodb.net
+  MONGODB_URL: ${{secrets.MONGODB_URL}}
+  JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY}}
+
+jobs:
+  test:
+    env: 
+      MONGODB_URL: mongodb://root:example@127.0.0.1:27017/jobfinder_DB
+      MONGODB_CONNECTION_PROTOCOL: mongodb
+      MONGODB_CLUSTER_ADDRESS: 127.0.0.1:27017
+      MONGODB_USERNAME: root
+      MONGODB_PASSWORD: example
+      PORT: 8800
+    environment: testing
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+    services:
+      # tên do người dùng đặt
+      mongodb:
+        image: mongo
+        ports:
+          - 27017:27017
+        env:
+          # Không cần phải quá kỹ hoặc là ẩn bởi vì đây chỉ là một server test được sử dụng bởi github action và sẽ tự xóa đi sao khi kết thúc(mục đích chính là để testing)
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: example
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - name: Load and Cache dependencies
+        id: cache-deps
+        uses: ./.github/actions/cached-deps
+        with:
+          caching: 'false'
+      - name: Output information
+        run: echo "Cache used? ${{steps.cache-deps.outputs.used-cache}}"
+
+      - name: Run server
+        run: |
+          nohup npm start &
+      - name: Run tests
+        run: |
+          sleep 5
+          npm test
+      - name: Stop server
+        run: |
+          kill $(lsof -t -i:8800)
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+              -Dsonar.organization=cuong199344
+              -Dsonar.projectKey=cuong199344
+              -Dsonar.python.coverage.reportPaths=coverage.xml
+
+          
+  checkQuality:
+    needs: test
+    runs-on: ubuntu-latest
+    environment: testing
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v3
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+              -Dsonar.organization=cuong199344
+              -Dsonar.projectKey=cuong199344
+              -Dsonar.python.coverage.reportPaths=coverage.xml
+
+
+  deploy:
+    needs: checkQuality
+    runs-on: ubuntu-latest
+    environment: testing
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Load and Cache dependencies
+        uses: ./.github/actions/cached-deps
+      - name: Output information
+        run: |        
+          echo "MONGODB_USERNAME: ${{env.MONGODB_USERNAME}}"
+          echo "MONGODB_DB_NAME: $MONGODB_DB_NAME"
