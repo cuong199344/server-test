@@ -61,16 +61,9 @@ jobs:
       - name: Stop server
         run: |
           kill $(lsof -t -i:8800)
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
-        env:
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-              -Dsonar.organization=cuong199344
-              -Dsonar.projectKey=cuong199344
-              -Dsonar.python.coverage.reportPaths=coverage.xml
-
+      - name: Output information
+        run: |
+          echo "MONGODB_URL: $MONGODB_URL"
           
   checkQuality:
     needs: test
