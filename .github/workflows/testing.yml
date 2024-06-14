@@ -8,7 +8,7 @@ env:
   # Biến này sẽ có thể được sử dụng bởi tất cả các job
   # MONGODB_DB_NAME: gha-demo
   MONGODB_CLUSTER_ADDRESS: cluster0.ay6rlxm.mongodb.net
-  # MONGODB_URL: ${{secrets.MONGODB_URL}}
+  MONGODB_URL: ${{secrets.MONGODB_URL}}
   JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY}}
 
 jobs:
@@ -32,7 +32,6 @@ jobs:
         ports:
           - 27017:27017
         env:
-          # Không cần phải quá kỹ hoặc là ẩn bởi vì đây chỉ là một server test được sử dụng bởi github action và sẽ tự xóa đi sao khi kết thúc(mục đích chính là để testing)
           MONGO_INITDB_ROOT_USERNAME: root
           MONGO_INITDB_ROOT_PASSWORD: example
     steps:
@@ -92,7 +91,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Load and Cache dependencies
         uses: ./.github/actions/cached-deps
-      - name: Output information
+      - name: Deploy
         run: |        
-          echo "MONGODB_USERNAME: ${{env.MONGODB_USERNAME}}"
-          echo "MONGODB_DB_NAME: $MONGODB_DB_NAME"
+          echo "Deploy here"
+          echo "MONGODB_URL: $MONGODB_URL"
