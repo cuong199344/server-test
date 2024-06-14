@@ -8,15 +8,15 @@ env:
   # Biến này sẽ có thể được sử dụng bởi tất cả các job
   # MONGODB_DB_NAME: gha-demo
   MONGODB_CLUSTER_ADDRESS: cluster0.ay6rlxm.mongodb.net
-  MONGODB_URL: ${{secrets.MONGODB_URL}}
+  # MONGODB_URL: ${{secrets.MONGODB_URL}}
   JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY}}
 
 jobs:
   test:
     env: 
-      MONGODB_URL: mongodb://root:example@127.0.0.1:27017/jobfinder_DB
+      MONGODB_URL: mongodb://root:example@localhost:27017/?retryWrites=true&w=majority
       MONGODB_CONNECTION_PROTOCOL: mongodb
-      MONGODB_CLUSTER_ADDRESS: 127.0.0.1:27017
+      MONGODB_CLUSTER_ADDRESS: localhost:27017
       MONGODB_USERNAME: root
       MONGODB_PASSWORD: example
       PORT: 8800
